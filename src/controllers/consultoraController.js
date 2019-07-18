@@ -1,6 +1,6 @@
 const pool = require('../database');
 // const db = pool();
-personList = (req, res) => {
+consultantList = (req, res) => {
     // db.query();
     res.status(200).send('Usuario');
 }
@@ -8,22 +8,22 @@ getOne = (req, res) => {
     // db.query();
     res.status(200).send('obtener un usuario');
 }
-createPerson = (req, res) => {
+createCompany = (req, res) => {
     // db.query();
     res.status(200).send('crear un usuario');
 }
-modifyPerson = (req, res) => {
+modifyConsultant = (req, res) => {
     // db.query();
     res.status(200).send('modificar un usuario');
 }
-deletePerson = (req, res) => {
+deleteConsultant = (req, res) => {
     // db.query();
     res.status(200).send('eliminar un usuario');
 }
 module.exports = {
-    personList,
+    consultantList,
     getOne,
-    modifyPerson,
-    createPerson,
-    deletePerson
+    modifyConsultant,
+    createCompany,
+    deleteConsultant
 };
