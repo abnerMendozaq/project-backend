@@ -1,8 +1,10 @@
 const pool = require('../database');
-// const db = pool();
+const db = pool();
 userList = (req, res) => {
-    // db.query();
-    res.status(200).send('Usuario');
+    db.query('SELECT * from usuario', (error, result) => {
+        console.log(error);
+        res.send(result);
+    });
 }
 getOne = (req, res) => {
     // db.query();

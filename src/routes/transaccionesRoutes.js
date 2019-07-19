@@ -1,10 +1,10 @@
 const express = require('express');
-const transaccionerController = require('../controllers/transaccionesController');
+const transaccionesController = require('../controllers/transaccionesController');
 
 const router = express.Router()
-router.post('/transaccion', );
-router.post('/transaccion',);
-router.post('/transaccion/:id', );
-router.post('/transaccion/:id', );
-router.post('/transaccion/:id', );
+router.post('/transacciones/empresa', transaccionesController.createUserCompany);
+router.post('/transacciones/consultora',transaccionesController.createUserConsultant);
+router.post('/transacciones/:id', );
+router.post('/transacciones/:id', );
+router.post('/transacciones/:id', );
 module.exports = router;
