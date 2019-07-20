@@ -1,8 +1,13 @@
 const pool = require('../database');
-// const db = pool();
+const db = pool();
 companyList = (req, res) => {
-    // db.query();
-    res.status(200).send('Usuario');
+    db.query('SELECT * FROM empresa', (error, result) => {
+        if (error) {
+            res.status(404).send({ message: 'Error al recuperar los datos' });
+        }
+        res.status(200).send(result);
+    });
+
 }
 getOne = (req, res) => {
     // db.query();
