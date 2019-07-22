@@ -35,23 +35,24 @@ createUserCompany = (req, res) => {
                                         }
                                         usuario.idPersona = result.insertId;
                                         consultora.idPersona = result.insertId;
-                                        bcrypt.hash(req.body[1].password, 10, (error, hash) => {
-                                            usuario.password = hash;
-                                            db.query('INSERT INTO usuario set ?', usuario, (err, result) => {
-                                                if (err) {
-                                                    db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de usuario' }));
-                                                }
-                                                db.query('INSERT INTO empresa set ?', empresa, (err, result) => {
+                                        db.query('INSERT INTO empresa set ?', empresa, (err, result) => {
+                                            if (err) {
+                                                db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }));
+                                            }
+                                            usuario.idEmpresa = result.insertId;
+                                            bcrypt.hash(req.body[1].password, 10, (error, hash) => {
+                                                usuario.password = hash;
+                                                db.query('INSERT INTO usuario set ?', usuario, (err, result) => {
                                                     if (err) {
-                                                        db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }));
+                                                        db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de usuario' }));
                                                     }
                                                     res.status(200).send(result);
                                                     db.commit();
                                                     db.end();
                                                 });
                                             });
-
                                         });
+
                                     });
                                 });
                             } catch (error) {
@@ -99,23 +100,26 @@ createUserConsultant = (req, res) => {
                                         }
                                         usuario.idPersona = result.insertId;
                                         consultora.idPersona = result.insertId;
-                                        bcrypt.hash(req.body[1].password, 10, (error, hash) => {
-                                            usuario.password = hash;
-                                            db.query('INSERT INTO usuario set ?', usuario, (err, result) => {
-                                                if (err) {
-                                                    db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de usuario' }));
-                                                }
-                                                db.query('INSERT INTO consultora set ?', consultora, (err, result) => {
+                                        db.query('INSERT INTO consultora set ?', consultora, (err, result) => {
+                                            if (err) {
+                                                db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }));
+                                            }
+                                            usuario.idConsultora = result.insertId;
+                                            bcrypt.hash(req.body[1].password, 10, (error, hash) => {
+                                                usuario.password = hash;
+                                                db.query('INSERT INTO usuario set ?', usuario, (err, result) => {
                                                     if (err) {
-                                                        db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }));
+                                                        db.rollback(() => res.status(500).send({ message: 'Error al realizar la transaccion de usuario' }));
                                                     }
                                                     res.status(200).send(result);
                                                     db.commit();
                                                     db.end();
                                                 });
+
                                             });
 
                                         });
+
                                     });
                                 });
                             } catch (error) {
