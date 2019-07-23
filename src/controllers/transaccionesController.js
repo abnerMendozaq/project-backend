@@ -9,21 +9,21 @@ createUserCompany = (req, res) => {
         if (error) {
             res.status(404).send({ message: 'Error al recuperar los datos' });
         }
-        if (result.length > 0) {
+        if (result != undefined && result.length > 0) {
             res.status(403).send({ message: 'La persona ya existe' });
         } else {
             db.query('SELECT * from usuario WHERE nombreUsuario=?', usuario.nombreUsuario, (error, result) => {
                 if (error) {
                     res.status(404).send({ message: 'Error al recuperar los datos' });
                 }
-                if (result.length > 0) {
+                if (result != undefined && result.length > 0) {
                     res.status(403).send({ message: 'El usuario existe' });
                 } else {
                     db.query('SELECT * from empresa WHERE nit=?', empresa.nit, (error, result) => {
                         if (error) {
                             res.status(404).send({ message: 'Error al recuperar los datos' });
                         }
-                        if (result.length > 0) {
+                        if (result != undefined && result.length > 0) {
                             res.status(403).send({ message: 'La empresa ya esta registrada' });
                         } else {
                             try {
@@ -74,21 +74,21 @@ createUserConsultant = (req, res) => {
         if (error) {
             res.status(404).send({ message: 'Error al recuperar los datos' });
         }
-        if (result.length > 0) {
+        if (result != undefined && result.length > 0) {
             res.status(403).send({ message: 'La persona ya existe' });
         } else {
             db.query('SELECT * from usuario WHERE nombreUsuario=?', usuario.nombreUsuario, (error, result) => {
                 if (error) {
                     res.status(404).send({ message: 'Error al recuperar los datos' });
                 }
-                if (result.length > 0) {
+                if (result != undefined && result.length > 0) {
                     res.status(403).send({ message: 'El usuario existe' });
                 } else {
                     db.query('SELECT * from consultora WHERE nroColegiado=?', consultora.nroColegiado, (error, result) => {
                         if (error) {
                             res.status(404).send({ message: 'Error al recuperar los datos' });
                         }
-                        if (result.length > 0) {
+                        if (result != undefined && result.length > 0) {
                             res.status(403).send({ message: 'La consultora ya esta registrada' });
                         } else {
                             try {

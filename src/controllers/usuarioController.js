@@ -46,6 +46,7 @@ getOne = (req, res) => {
         if (result.length == 0) {
             res.status(403).send({ message: 'No existe el usuario' });
         }
+        result[0].password = undefined;
         res.status(200).send(result[0]);
     });
 }
