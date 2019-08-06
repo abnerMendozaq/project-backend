@@ -9,7 +9,7 @@ function encodeToken(usuario) {
         rol: usuario.rol,
         foto: usuario.foto,
         iat: moment().unix(),
-        exp: moment().add(30, 'days').unix()
+        exp: moment().add(24, 'hours').unix()
     };
     return jwt.encode(payload, secret, 'HS256');
 }

@@ -8,5 +8,5 @@ router.post('/usuario/login', usuarioController.login);
 router.post('/usuario', usuarioController.createUser);
 router.get('/usuario/:id', md_auth.decodeToken, usuarioController.getOne);
 router.put('/usuario/:id', md_auth.decodeToken, usuarioController.modifyUser);
-router.delete('/usuario/:id', usuarioController.deleteUser);
+router.delete('/usuario/:id', md_auth.decodeToken, usuarioController.deleteUser);
 module.exports = router;

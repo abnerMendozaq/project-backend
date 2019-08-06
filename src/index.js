@@ -5,6 +5,8 @@ const indexRoutes = require('./routes/index');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
 const consultoraRoutes = require('./routes/consultoraRoutes');
+const ufvRoutes = require('./routes/ufvRoutes');
+
 const app = express();
 /**Settings */
 app.set('port', process.env.PORT || 3000);
@@ -19,6 +21,7 @@ app.use('/', indexRoutes);
 app.use('/api', usuarioRoutes);
 app.use('/api', consultoraRoutes);
 app.use('/api', transaccionesRoutes);
+app.use('/api', ufvRoutes);
 /**Iniciar Servidor */
 app.listen(app.get('port'), () => {
     console.log(`http://localhost:${app.get('port')}`);

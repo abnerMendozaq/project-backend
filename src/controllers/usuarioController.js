@@ -1,13 +1,13 @@
 const pool = require('../database');
 const bcrypt = require('bcrypt');
-const jwt = require('../services/jwt-service')
+const jwt = require('../services/jwt-service');
 const db = pool();
 userList = (req, res) => {
     db.query('SELECT * from usuario', (error, result) => {
         if (error) {
-            res.status(404).send({ message: 'Error al recuperar datos' });
+            return res.status(404).send({ message: 'Error al recuperar datos' });
         }
-        res.status(200).send(result);
+        return res.status(200).send(result);
     });
 }
 login = (req, res) => {
@@ -18,6 +18,7 @@ login = (req, res) => {
         if (error) {
             res.status(404).send({ message: 'Error al recuperar los datos' });
         }
+        console.log(result);
         if (result.length > 0) {
             bcrypt.compare(password, result[0].password, (check) => {
                 if (!check) {
@@ -28,7 +29,7 @@ login = (req, res) => {
                         res.status(200).send(result[0]);
                     }
                 } else {
-                    return res.status(404).send({ message: 'El usuario no se ha podido identificar' });
+                    return res.status(404).send({ message: 'El usuario no se ha podido identificar1' });
                 }
 
             })
