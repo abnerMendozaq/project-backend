@@ -30,12 +30,11 @@ createUserCompany = (req, res) => {
                             try {
                                 db.beginTransaction((err) => {
                                     if (err) { return res.status(500).send({ message: 'Internal Server' }); }
-                                    console.log(err);
                                     db.query('INSERT INTO persona set ?', persona, (err, result) => {
                                         if (err) {
                                             db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de persona' }) });
                                         }
-                                        consultora.idPersona = result.insertId;
+                                        empresa.idPersona = result.insertId;
                                         db.query('INSERT INTO empresa set ?', empresa, (err, result) => {
                                             if (err) {
                                                 db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }) });
@@ -125,7 +124,7 @@ createUserConsultant = (req, res) => {
                                 });
                             } catch (error) {
                                 db.end();
-                                res.status(500).send({ message: `Error al realizar la transaccion ${error}` });
+                                return res.status(500).send({ message: `Error al realizar la transaccion ${error}` });
                             }
                         }
                     });
