@@ -98,7 +98,6 @@ createUserConsultant = (req, res) => {
                                         if (err) {
                                             db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de persona' }) });
                                         }
-                                        usuario.idPersona = result.insertId;
                                         consultora.idPersona = result.insertId;
                                         db.query('INSERT INTO consultora set ?', consultora, (err, result) => {
                                             if (err) {
