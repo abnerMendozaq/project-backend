@@ -21,11 +21,13 @@ getOne = (req, res) => {
     });
 }
 createUfv = (req, res) => {
+    console.log(req.body);
     let ufv = req.body;
     db.query('SELECT * from ufv WHERE fechaUfv=?', ufv.fechaUfv, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar los datos' });
         }
+        console.log(result);
         if (result.length > 0) {
             return res.status(403).send({ message: 'La ufv ya existe' });
         }

@@ -6,6 +6,7 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
 const consultoraRoutes = require('./routes/consultoraRoutes');
 const ufvRoutes = require('./routes/ufvRoutes');
+const lvcRoutes = require('./routes/lvcRoutes');
 
 const app = express();
 /**Settings */
@@ -22,6 +23,7 @@ app.use('/api', usuarioRoutes);
 app.use('/api', consultoraRoutes);
 app.use('/api', transaccionesRoutes);
 app.use('/api', ufvRoutes);
+app.use('/api', lvcRoutes);
 /**Iniciar Servidor */
 app.listen(app.get('port'), () => {
     console.log(`http://localhost:${app.get('port')}`);

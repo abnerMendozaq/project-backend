@@ -1,9 +1,14 @@
 const pool = require('../database');
 const bcrypt = require('bcrypt');
 const jwt = require('../services/jwt-service');
+const mysql = require('mysql');
 const db = pool();
+const table = ["usuario"];
+let query='';
 userList = (req, res) => {
-    db.query('SELECT * from usuario', (error, result) => {
+    query = 'SELECT * from ??';
+    query = mysql.format(query, table);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar datos' });
         }
@@ -14,11 +19,12 @@ login = (req, res) => {
     let params = req.body;
     let usuario = params.nombreUsuario;
     let password = params.password;
-    db.query('SELECT * FROM usuario WHERE nombreUsuario = ? AND estado=1', usuario, (error, result) => {
+    query = 'SELECT * from ?? WHERE nombreUsuario = ? AND estado=1';
+    query = mysql.format(query, [table, usuario]);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar los datos' });
         }
-        console.log(result);
         if (result.length > 0) {
             bcrypt.compare(password, result[0].password, (check) => {
                 if (!check) {
@@ -40,7 +46,9 @@ login = (req, res) => {
 }
 getOne = (req, res) => {
     let idUsuario = req.params.id;
-    db.query('SELECT * from usuario WHERE idUsuario=?', idUsuario, (error, result) => {
+    query = 'SELECT * from ?? WHERE idUsuario = ?';
+    query = mysql.format(query, [table, idUsuario]);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar datos' });
         }
@@ -53,31 +61,10 @@ getOne = (req, res) => {
 }
 createUser = (req, res) => {
     let usuario = req.body;
-    db.query('SELECT * from usuario WHERE nombreUsuario=?', usuario.nombreUsuario, (error, result) => {
-        if (error) {
-            return res.status(404).send({ message: 'Error al recuperar los datos' });
-        }
-        if (result.length > 0) {
-            return res.status(403).send({ message: 'El usuario existe' });
-        }
-        bcrypt.hash(req.body[1].password, 10, (error, hash) => {
-            usuario.password = hash;
-            db.query('INSERT INTO usuario set ?', usuario, (err, result) => {
-                if (err) {
-                    return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' });
-                }
-                return res.status(200).send(result);
-            });
-        });
-    });
-}
-modifyUser = (req, res) => {
-    let id = req.params.id;
-    let usuario = req.body;
-    if (id != req.usuario.idUsuario) {
-        return res.status(500).send({ message: 'No tienes permiso para modificar' })
-    }
-    db.query('SELECT * from usuario WHERE nombreUsuario=?', usuario.nombreUsuario, (error, result) => {
+    query = 'SELECT * from ?? WHERE nombreUsuario = ?';
+    query = mysql.format(query, [table, usuario.nombreUsuario]);
+    console.log(query);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar los datos' });
         }
@@ -86,7 +73,75 @@ modifyUser = (req, res) => {
         }
         bcrypt.hash(req.body.password, 10, (error, hash) => {
             usuario.password = hash;
-            db.query('UPDATE usuario SET ? WHERE idUsuario=?', [usuario, id], (err, result) => {
+            query = 'INSERT INTO ?? set ?';
+            query = mysql.format(query, [table, usuario]);
+            db.query(query, (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' });
+                }
+                return res.status(200).send(result);
+            });
+        });
+    });
+}
+userListPaginate = (req, res) => {
+    let query = "Select count(*) as TotalCount from ??";
+    let totalCount = 0;
+    let startNum = 10;
+    let LimitNum = 10;
+    query = mysql.format(query, table);
+    db.query(query, (err, rows) => {
+        if (err) {
+            return res.status(500).send(err);
+        } else {
+            totalCount = rows[0].TotalCount
+            // if (req.para.start == '' || req.body.limit == '') {
+            //     console.log('entra aqui');
+            //     startNum = 0;
+            //     LimitNum = 10;
+            // }
+            // else {
+            //     console.log('lo vacia');
+            //     startNum = parseInt(req.body.start);
+            //     LimitNum = parseInt(req.body.limit);
+            // }
+        }
+        console.log(LimitNum);
+        console.log(startNum);
+        let query = "Select * from ?? ORDER BY nombreUsuario ASC limit ? OFFSET ?";
+        let table = ["usuario", LimitNum, startNum];
+        query = mysql.format(query, table);
+        db.query(query, (err, rest) => {
+            if (err) {
+                return res.status(500).send(err);
+            }
+            else {
+                // Total Count varibale display total Count in Db and data display the records
+                return res.status(200).send({ totalCount, rest, paginas: Math.ceil(totalCount / LimitNum) })
+            }
+        });
+    });
+}
+modifyUser = (req, res) => {
+    let id = req.params.id;
+    let usuario = req.body;
+    query = 'SELECT * from ?? WHERE nombreUsuario = ?';
+    query = mysql.format(query, [table, usuario.nombreUsuario]);
+    if (id != req.usuario.idUsuario) {
+        return res.status(500).send({ message: 'No tienes permiso para modificar' })
+    }
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.status(404).send({ message: 'Error al recuperar los datos' });
+        }
+        if (result.length > 0) {
+            return res.status(403).send({ message: 'El usuario existe' });
+        }
+        bcrypt.hash(req.body.password, 10, (error, hash) => {
+            usuario.password = hash;
+            query = 'UPDATE ?? SET ? WHERE idUsuario=?';
+            query = mysql.format(query, [table, usuario, id]);
+            db.query(query, (err, result) => {
                 if (err) {
                     return res.status(500).send({ message: 'Error al modificar los datos del usuario' });
                 }
@@ -97,10 +152,12 @@ modifyUser = (req, res) => {
 }
 deleteUser = (req, res) => {
     let id = req.params.id;
+    query = 'UPDATE ?? SET estado=0 WHERE idUsuario=?';
+    query = mysql.format(query, [table, id]);
     if (id != req.usuario.idUsuario) {
         return res.status(500).send({ message: 'No tienes permiso para modificar' })
     }
-    db.query('UPDATE usuario SET estado=0 WHERE idUsuario=?', id, (err, result) => {
+    db.query(query, (err, result) => {
         if (err) {
             return res.status(500).send({ message: 'Error al modificar los datos del usuario' });
         }
@@ -113,5 +170,6 @@ module.exports = {
     getOne,
     modifyUser,
     createUser,
-    deleteUser
+    deleteUser,
+    userListPaginate
 };
