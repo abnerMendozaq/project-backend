@@ -1,6 +1,6 @@
 const express = require('express');
 const usuarioController = require('../controllers/usuarioController');
-const md_auth = require('../services/jwt-service')
+const md_auth = require('../services/jwt-service');
 
 const router = express.Router()
 router.get('/usuarios', md_auth.decodeToken, usuarioController.userList);

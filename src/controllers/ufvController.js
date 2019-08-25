@@ -1,7 +1,10 @@
 const pool = require('../database');
+const mysql = require('mysql');
 const db = pool();
+const table = ["ufv"];
+let query = '';
 ufvList = (req, res) => {
-    db.query('SELECT * from ufv', (error, result) => {
+    db.query('SELECT * from ufv ORDER BY fechaUfv DESC', (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar datos' });
         }
@@ -11,6 +14,21 @@ ufvList = (req, res) => {
 getOne = (req, res) => {
     let idUfv = req.params.id;
     db.query('SELECT * from ufv WHERE idUfv=?', idUfv, (error, result) => {
+        if (error) {
+            return res.status(404).send({ message: 'Error al recuperar datos' });
+        }
+        if (result.length == 0) {
+            return res.status(403).send({ message: 'No existe la ufv' });
+        }
+        return res.status(200).send(result[0]);
+    });
+}
+getUfvOfDay = (req, res) => {
+    let fechaUfv = req.body;
+    query = 'SELECT * from ?? where ?';
+    query = mysql.format(query, [table, fechaUfv]);
+    console.log(query);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar datos' });
         }
@@ -61,6 +79,7 @@ deleteUfv = (req, res) => {
 module.exports = {
     ufvList,
     getOne,
+    getUfvOfDay,
     modifyUfv,
     createUfv,
     deleteUfv

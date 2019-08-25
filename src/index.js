@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const ws = require('./webSocket')
 const indexRoutes = require('./routes/index');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
@@ -25,6 +26,9 @@ app.use('/api', transaccionesRoutes);
 app.use('/api', ufvRoutes);
 app.use('/api', lvcRoutes);
 /**Iniciar Servidor */
-app.listen(app.get('port'), () => {
+const server = require('http').Server(app);
+server.listen(app.get('port'), () => {
     console.log(`http://localhost:${app.get('port')}`);
 });
+/**WebSocket */
+ws.startWebsocket(server);
