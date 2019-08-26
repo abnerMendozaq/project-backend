@@ -1,13 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const ws = require('./webSocket')
+const ws = require('./webSocket');
 const indexRoutes = require('./routes/index');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
 const consultoraRoutes = require('./routes/consultoraRoutes');
 const ufvRoutes = require('./routes/ufvRoutes');
 const lvcRoutes = require('./routes/lvcRoutes');
+const empresaRoutes = require('./routes/empresaRoutes');
 
 const app = express();
 /**Settings */
@@ -25,6 +26,7 @@ app.use('/api', consultoraRoutes);
 app.use('/api', transaccionesRoutes);
 app.use('/api', ufvRoutes);
 app.use('/api', lvcRoutes);
+app.use('/api', empresaRoutes);
 /**Iniciar Servidor */
 const server = require('http').Server(app);
 server.listen(app.get('port'), () => {

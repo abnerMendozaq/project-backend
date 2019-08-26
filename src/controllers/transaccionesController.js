@@ -132,7 +132,40 @@ createUserConsultant = (req, res) => {
         }
     });
 }
+createLvcForm200Form400 = (req, res) => {
+    var lvc = req.body[0];
+    var form200 = req.body[1];
+    var form400 = req.body[2];
+    db.beginTransaction((err) => {
+        if (err) { return res.status(500).send({ message: 'Internal Server' }); }
+        console.log(lvc);
+        db.query('INSERT INTO lvc set ?', lvc, (err, result) => {
+            if (err) {
+                db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de persona' }) });
+            }
+            console.log(result);
+            form200.idFormulario200 = result.insertId;
+            form400.idFormulario400 = result.insertId;
+            console.log(form200);
+            console.log(form400);
+            db.query('INSERT INTO formulario200 set ?', form200, (err, result) => {
+                if (err) {
+                    db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de consultora' }) });
+                }
+                db.query('INSERT INTO formulario400 set ?', form400, (err, result) => {
+                    if (err) {
+                        db.rollback(() => { return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' }) });
+                    }
+                    db.commit();
+                    db.end();
+                    return res.status(200).send(result);
+                });
+            });
+        });
+    });
+}
 module.exports = {
     createUserCompany,
-    createUserConsultant
+    createUserConsultant,
+    createLvcForm200Form400
 };

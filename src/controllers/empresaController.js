@@ -1,7 +1,13 @@
 const pool = require('../database');
+const mysql = require('mysql');
 const db = pool();
+const table = ["empresa"];
+let query = '';
 companyList = (req, res) => {
-    db.query('SELECT * FROM empresa', (error, result) => {
+    let idPersona = req.body;
+    query = 'SELECT * FROM ?? WHERE ?';
+    query = mysql.format(query, [table, idPersona]);
+    db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar los datos' });
         }
@@ -10,12 +16,27 @@ companyList = (req, res) => {
 
 }
 getOne = (req, res) => {
-    // db.query();
-    return res.status(200).send('obtener un usuario');
+    let company = req.body;
+    query = 'INSERT * INTO ?? SET ?';
+    query = mysql.format(query, [table, company]);
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.status(404).send({ message: 'Error al registrar empresa' });
+        }
+        return res.status(200).send(result);
+    });
 }
-createUser = (req, res) => {
-    // db.query();
-    return res.status(200).send('crear un usuario');
+createCompany = (req, res) => {
+    let company = req.body;    
+    query = 'INSERT INTO ?? SET ?';
+    query = mysql.format(query, [table, company]);
+    console.log(query);
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.status(404).send({ message: 'Error al registrar empresa' });
+        }
+        return res.status(200).send(result);
+    });
 }
 modifyUser = (req, res) => {
     // db.query();
@@ -29,6 +50,6 @@ module.exports = {
     companyList,
     getOne,
     modifyUser,
-    createUser,
+    createCompany,
     deleteUser
 };
