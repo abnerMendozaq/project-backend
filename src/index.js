@@ -9,6 +9,7 @@ const consultoraRoutes = require('./routes/consultoraRoutes');
 const ufvRoutes = require('./routes/ufvRoutes');
 const lvcRoutes = require('./routes/lvcRoutes');
 const empresaRoutes = require('./routes/empresaRoutes');
+const interesRoutes = require('./routes/interesRoutes');
 
 const app = express();
 /**Settings */
@@ -27,6 +28,7 @@ app.use('/api', transaccionesRoutes);
 app.use('/api', ufvRoutes);
 app.use('/api', lvcRoutes);
 app.use('/api', empresaRoutes);
+app.use('/api', interesRoutes);
 /**Iniciar Servidor */
 const server = require('http').Server(app);
 server.listen(app.get('port'), () => {
