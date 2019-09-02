@@ -1,6 +1,6 @@
 const jwt = require('jwt-simple');
 const moment = require('moment');
-const secret = 'rest'
+const secret = 'miproyecto';
 function encodeToken(usuario) {
     let payload = {
         idUsuario: usuario.idUsuario,

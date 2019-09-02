@@ -4,30 +4,29 @@ const db = pool();
 const table = ["empresa"];
 let query = '';
 companyList = (req, res) => {
-    let idPersona = req.body;
+    let persona = req.body;
     query = 'SELECT * FROM ?? WHERE ?';
-    query = mysql.format(query, [table, idPersona]);
+    query = mysql.format(query, [table, persona]);
     db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al recuperar los datos' });
         }
         return res.status(200).send(result);
     });
-
 }
 getOne = (req, res) => {
     let company = req.body;
-    query = 'INSERT * INTO ?? SET ?';
+    query = 'SELECT * FROM ?? WHERE ?';
     query = mysql.format(query, [table, company]);
     db.query(query, (error, result) => {
         if (error) {
             return res.status(404).send({ message: 'Error al registrar empresa' });
         }
-        return res.status(200).send(result);
+        return res.status(200).send(result[0]);
     });
 }
 createCompany = (req, res) => {
-    let company = req.body;    
+    let company = req.body;
     query = 'INSERT INTO ?? SET ?';
     query = mysql.format(query, [table, company]);
     console.log(query);
