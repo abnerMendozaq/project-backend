@@ -1,6 +1,5 @@
-const pool = require('../database');
+const db = require('../database');
 const mysql = require('mysql');
-const db = pool();
 const table = ["persona"];
 let query = '';
 
@@ -12,12 +11,17 @@ getPersonCi = (req, res) => {
     let persona = req.body;
     query = 'SELECT idPersona FROM ?? WHERE ?';
     query = mysql.format(query, [table, persona]);
-    console.log(query);
-    db.query(query, (error, result) => {
-        if (error) {
-            return res.status(404).send({ error: error });
+    db.getConnectionDb((er, con) => {
+        if (er) {
+            res.status(500).send({ error: er });
         }
-        return res.status(200).send(result[0]);
+        con.query(query, (error, result) => {
+            con.release();
+            if (error) {
+                return res.status(404).send({ error: error });
+            }
+            return res.status(200).send(result[0]);
+        });
     });
 }
 getOne = (req, res) => {

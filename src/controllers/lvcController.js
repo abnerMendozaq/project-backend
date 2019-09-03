@@ -1,6 +1,5 @@
-const pool = require('../database');
+const db = require('../database');
 const mysql = require('mysql');
-const db = pool();
 const table = ["lvc"];
 let query = '';
 lvcList = (req, res) => {

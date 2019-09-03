@@ -5,8 +5,7 @@ const router = express.Router();
 
 router.get('/ufvs', md_auth.decodeToken, ufvController.ufvList);
 router.post('/ufv', md_auth.decodeToken, ufvController.createUfv);
-router.post('/ufvofday', md_auth.decodeToken, ufvController.getUfvOfDay);
-router.get('/ufv/:id', md_auth.decodeToken, ufvController.getOne);
-router.put('/ufv/:id', md_auth.decodeToken, ufvController.modifyUfv);
-router.delete('/ufv/:id', md_auth.decodeToken, ufvController.deleteUfv);
+router.post('/oneufv', md_auth.decodeToken, ufvController.getOne);
+router.put('/ufv', md_auth.decodeToken, ufvController.modifyUfv);
+router.delete('/ufv', md_auth.decodeToken, ufvController.deleteUfv);
 module.exports = router;

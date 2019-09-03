@@ -1,40 +1,56 @@
-const pool = require('../database');
+const db = require('../database');
 const mysql = require('mysql');
-const db = pool();
 const table = ["empresa"];
 let query = '';
 companyList = (req, res) => {
     let persona = req.body;
     query = 'SELECT * FROM ?? WHERE ?';
     query = mysql.format(query, [table, persona]);
-    db.query(query, (error, result) => {
-        if (error) {
-            return res.status(404).send({ message: 'Error al recuperar los datos' });
+    db.getConnectionDb((er, con) => {
+        if (er) {
+            res.status(500).send({ error: er });
         }
-        return res.status(200).send(result);
+        con.query(query, (error, result) => {
+            con.release();
+            if (error) {
+                return res.status(404).send({ message: 'Error al recuperar los datos' });
+            }
+            return res.status(200).send(result);
+        });
     });
 }
 getOne = (req, res) => {
     let company = req.body;
     query = 'SELECT * FROM ?? WHERE ?';
     query = mysql.format(query, [table, company]);
-    db.query(query, (error, result) => {
-        if (error) {
-            return res.status(404).send({ message: 'Error al registrar empresa' });
+    db.getConnectionDb((er, con) => {
+        if (er) {
+            res.status(500).send({ error: er });
         }
-        return res.status(200).send(result[0]);
+        con.query(query, (error, result) => {
+            con.release();
+            if (error) {
+                return res.status(404).send({ message: 'Error al obtener Empresa' });
+            }
+            return res.status(200).send(result[0]);
+        });
     });
 }
 createCompany = (req, res) => {
     let company = req.body;
     query = 'INSERT INTO ?? SET ?';
     query = mysql.format(query, [table, company]);
-    console.log(query);
-    db.query(query, (error, result) => {
-        if (error) {
-            return res.status(404).send({ message: 'Error al registrar empresa' });
+    db.getConnectionDb((er, con) => {
+        if (er) {
+            res.status(500).send({ error: er });
         }
-        return res.status(200).send(result);
+        con.query(query, (error, result) => {
+            con.release();
+            if (error) {
+                return res.status(404).send({ message: 'Error al registrar empresa' });
+            }
+            return res.status(200).send(result);
+        });
     });
 }
 modifyUser = (req, res) => {
