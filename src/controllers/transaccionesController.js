@@ -149,7 +149,7 @@ createLvcForm200Form400 = (req, res) => {
     var form400 = req.body[2];
     db.getConnectionDb((er, con) => {
         if (er) {
-            res.status(500).send({ error: er });
+            return res.status(500).send({ error: er });
         }
         try {
             con.beginTransaction((err) => {
@@ -163,31 +163,35 @@ createLvcForm200Form400 = (req, res) => {
                             return res.status(500).send({ message: 'Error al realizar la transaccion del lvc' });
                         });
                     }
-                    form200.idFormulario200 = result.insertId;
-                    form400.idFormulario400 = result.insertId;
-                    query = 'INSERT INTO ?? set ?';
-                    query = mysql.format(query, [tableF2, form200]);
-                    con.query(query, (err, result) => {
-                        if (err) {
-                            con.rollback(() => {
-                                con.release();
-                                return res.status(500).send({ message: 'Error al realizar la transaccion del form 200' });
-                            });
-                        }
+                    if (result != undefined) {
+                        form200.idFormulario200 = result.insertId;
+                        form400.idFormulario400 = result.insertId;
                         query = 'INSERT INTO ?? set ?';
-                        query = mysql.format(query, [tableF4, form400]);
+                        query = mysql.format(query, [tableF2, form200]);
                         con.query(query, (err, result) => {
                             if (err) {
                                 con.rollback(() => {
                                     con.release();
-                                    return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' });
+                                    return res.status(500).send({ message: 'Error al realizar la transaccion del form 200' });
                                 });
                             }
-                            con.commit();
-                            con.release();
-                            return res.status(200).send(result);
+                            query = 'INSERT INTO ?? set ?';
+                            query = mysql.format(query, [tableF4, form400]);
+                            con.query(query, (err, result) => {
+                                if (err) {
+                                    con.rollback(() => {
+                                        con.release();
+                                        return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' });
+                                    });
+                                }
+                                con.commit();
+                                con.release();
+                                return res.status(200).send(result);
+                            });
                         });
-                    });
+                    } else {
+                        return res.status(500).send({ message: 'ocurrio un error al realizar la transaccion' });
+                    }
                 });
             });
         } catch (error) {

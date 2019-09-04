@@ -1,15 +1,22 @@
 const db = require('../database');
 const mysql = require('mysql');
 const table = ["lvc"];
+const vista = ['vwlvc'];
 let query = '';
 lvcList = (req, res) => {
     query = 'SELECT * FROM ??'
-    query = mysql.format(query, table);
-    db.query(query, (error, result) => {
-        if (error) {
-            return res.status(404).send({ error: error });
+    query = mysql.format(query, vista);
+    db.getConnectionDb((er, con) => {
+        if (er) {
+            return res.status(500).send({ error: er })
         }
-        return res.status(200).send(result);
+        con.query(query, (error, result) => {
+            con.release();
+            if (error) {
+                return res.status(404).send({ error: error });
+            }
+            return res.status(200).send(result);
+        });
     });
 }
 getOne = (req, res) => {
