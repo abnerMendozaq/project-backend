@@ -42,6 +42,7 @@ createUfv = (req, res) => {
     let ufv = req.body;
     query = 'SELECT * from ?? WHERE fechaUfv=?';
     query = mysql.format(query, [table, ufv.fechaUfv]);
+    console.log(query);
     db.getConnectionDb((er, con) => {
         if (er) {
             return res.status(500).send({ error: er });
@@ -51,18 +52,24 @@ createUfv = (req, res) => {
             if (error) {
                 return res.status(404).send({ message: 'Error al recuperar los datos' });
             }
+            console.log(result);
             if (result.length > 0) {
                 return res.status(403).send({ message: 'La ufv ya existe' });
-            }
-            query = 'INSERT INTO ?? set ?';
-            query = mysql.format(query, [table, ufv]);
-            con.query(query, (err, result) => {
-                con.release();
-                if (err) {
-                    return res.status(500).send({ message: 'Error al realizar el registro de la ufv' });
+            } else {
+                try {
+                    query = 'INSERT INTO ?? set ?';
+                    query = mysql.format(query, [table, ufv]);
+                    console.log(query);
+                    con.query(query, (err, result) => {
+                        if (err) {
+                            return res.status(500).send({ message: 'Error al realizar el registro de la ufv' });
+                        }
+                        return res.status(200).send(result);
+                    });
+                } catch (error) {
+                    console.log(error);
                 }
-                return res.status(200).send(result);
-            });
+            }
         });
     })
 

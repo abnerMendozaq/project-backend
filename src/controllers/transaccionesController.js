@@ -115,7 +115,7 @@ createUserConsultant = (req, res) => {
                                         return res.status(500).send({ message: 'Error al realizar la transaccion de consultora' });
                                     });
                                 }
-                                usuario.idEmpresa = result.insertId;
+                                usuario.idConsultora = result.insertId;
                                 query = 'INSERT INTO ?? set ?';
                                 bcrypt.hash(req.body[1].password, 10, (error, hash) => {
                                     usuario.password = hash;
