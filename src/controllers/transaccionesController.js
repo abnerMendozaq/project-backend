@@ -1,5 +1,5 @@
 const db = require('../database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const mysql = require('mysql');
 let tableC = ["consultora"];
 let tableE = ["empresa"];
@@ -21,21 +21,21 @@ createUserCompany = (req, res) => {
         }
         con.query(query, (error, result) => {
             if (error) {
-                return res.status(404).send({ message: 'Error al recuperar los datos de la empresa' });
+                return res.status(404).send('Error al recuperar los datos de la empresa');
             }
             if (result != undefined && result.length > 0) {
-                return res.status(403).send({ message: 'La empresa ya esta registrada' });
+                return res.status(403).send('La empresa ya esta registrada');
             } else {
                 try {
                     con.beginTransaction((err) => {
-                        if (err) { return res.status(500).send({ error: err }); }
+                        if (err) { return res.status(500).send('Internal Server'); }
                         query = 'INSERT INTO ?? set ?';
                         query = mysql.format(query, [tableP, persona]);
                         con.query(query, (err, result) => {
                             if (err) {
                                 con.rollback(() => {
                                     con.release();
-                                    return res.status(500).send({ message: 'Error al realizar la transaccion de persona' });
+                                    return res.status(500).send('Error al realizar la transaccion de persona');
                                 });
                             }
                             empresa.idPersona = result.insertId;
@@ -45,32 +45,30 @@ createUserCompany = (req, res) => {
                                 if (err) {
                                     con.rollback(() => {
                                         con.release();
-                                        return res.status(500).send({ message: 'Error al realizar la transaccion de consultora' });
+                                        return res.status(500).send('Error al realizar la transaccion de consultora');
                                     });
                                 }
                                 usuario.idEmpresa = result.insertId;
                                 query = 'INSERT INTO ?? set ?';
-                                bcrypt.hash(req.body[1].password, 10, (error, hash) => {
-                                    usuario.password = hash;
-                                    query = mysql.format(query, [tableU, usuario]);
-                                    con.query(query, (err, result) => {
-                                        if (err) {
-                                            con.rollback(() => {
-                                                con.release();
-                                                return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' })
-                                            });
-                                        }
-                                        con.commit();
-                                        con.release();
-                                        return res.status(200).send(result);
-                                    });
+                                usuario.password = bcrypt.hashSync(req.body[1].password, 10);
+                                query = mysql.format(query, [tableU, usuario]);
+                                con.query(query, (err, result) => {
+                                    if (err) {
+                                        con.rollback(() => {
+                                            con.release();
+                                            return res.status(500).send('Error al realizar la transaccion de usuario')
+                                        });
+                                    }
+                                    con.commit();
+                                    con.release();
+                                    return res.status(200).send(result);
                                 });
                             });
                         });
                     });
                 } catch (error) {
                     con.release();
-                    return res.status(500).send({ message: `Error al realizar la transaccion ${error}` });
+                    return res.status(500).send(`Error al realizar la transaccion ${error}`);
                 }
             }
         });
@@ -88,21 +86,21 @@ createUserConsultant = (req, res) => {
         }
         con.query(query, (error, result) => {
             if (error) {
-                return res.status(404).send({ message: 'Error al recuperar los datos de la consultora' });
+                return res.status(404).send('Error al recuperar los datos de la consultora');
             }
             if (result != undefined && result.length > 0) {
-                return res.status(403).send({ message: 'La consultora ya esta registrada' });
+                return res.status(403).send('La consultora ya esta registrada');
             } else {
                 try {
                     con.beginTransaction((err) => {
-                        if (err) { return res.status(500).send({ error: err }); }
+                        if (err) { return res.status(500).send('Internal Server'); }
                         query = 'INSERT INTO ?? set ?';
                         query = mysql.format(query, [tableP, persona]);
                         con.query(query, (err, result) => {
                             if (err) {
                                 con.rollback(() => {
                                     con.release();
-                                    return res.status(500).send({ message: 'Error al realizar la transaccion de persona' });
+                                    return res.status(500).send('Error al realizar la transaccion de persona');
                                 });
                             }
                             consultora.idPersona = result.insertId;
@@ -112,7 +110,7 @@ createUserConsultant = (req, res) => {
                                 if (err) {
                                     con.rollback(() => {
                                         con.release();
-                                        return res.status(500).send({ message: 'Error al realizar la transaccion de consultora' });
+                                        return res.status(500).send('Error al realizar la transaccion de consultora');
                                     });
                                 }
                                 usuario.idConsultora = result.insertId;
@@ -124,7 +122,7 @@ createUserConsultant = (req, res) => {
                                         if (err) {
                                             con.rollback(() => {
                                                 con.release();
-                                                return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' })
+                                                return res.status(500).send('Error al realizar la transaccion de usuario');
                                             });
                                         }
                                         con.commit();
@@ -137,7 +135,7 @@ createUserConsultant = (req, res) => {
                     });
                 } catch (error) {
                     con.release();
-                    return res.status(500).send({ message: `Error al realizar la transaccion ${error}` });
+                    return res.status(500).send(`Error al realizar la transaccion ${error}`);
                 }
             }
         });
@@ -153,14 +151,14 @@ createLvcForm200Form400 = (req, res) => {
         }
         try {
             con.beginTransaction((err) => {
-                if (err) { return res.status(500).send({ error: err }); }
+                if (err) { return res.status(500).send('Internal Server'); }
                 query = 'INSERT INTO ?? set ?';
                 query = mysql.format(query, [tableL, lvc]);
                 con.query(query, (err, result) => {
                     if (err) {
                         con.rollback(() => {
                             con.release();
-                            return res.status(500).send({ message: 'Error al realizar la transaccion del lvc' });
+                            return res.status(500).send('Error al realizar la transaccion del lvc');
                         });
                     }
                     if (result != undefined) {
@@ -172,7 +170,7 @@ createLvcForm200Form400 = (req, res) => {
                             if (err) {
                                 con.rollback(() => {
                                     con.release();
-                                    return res.status(500).send({ message: 'Error al realizar la transaccion del form 200' });
+                                    return res.status(500).send('Error al realizar la transaccion del form 200');
                                 });
                             }
                             query = 'INSERT INTO ?? set ?';
@@ -181,7 +179,7 @@ createLvcForm200Form400 = (req, res) => {
                                 if (err) {
                                     con.rollback(() => {
                                         con.release();
-                                        return res.status(500).send({ message: 'Error al realizar la transaccion de usuario' });
+                                        return res.status(500).send('Error al realizar la transaccion del form 400');
                                     });
                                 }
                                 con.commit();
@@ -190,13 +188,13 @@ createLvcForm200Form400 = (req, res) => {
                             });
                         });
                     } else {
-                        return res.status(500).send({ message: 'ocurrio un error al realizar la transaccion' });
+                        return res.status(500).send('ocurrio un error al realizar la transaccion');
                     }
                 });
             });
         } catch (error) {
             con.release();
-            return res.send({ error: error });
+            return res.send(error);
         }
     });
 }

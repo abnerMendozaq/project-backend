@@ -1,7 +1,10 @@
 const db = require('../database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('../services/jwt-service');
 const mysql = require('mysql');
+const request = require('request');
+const server = 'https://google.com/recaptcha/api/siteverify';
+const secret = '6Le_GrcUAAAAALXG71pjpHT2R9Eja0CXnaEGFtP7';
 const table = ["usuario"];
 let query = '';
 userList = (req, res) => {
@@ -21,24 +24,32 @@ userList = (req, res) => {
     });
 }
 login = (req, res) => {
-    let params = req.body;
-    let usuario = params.nombreUsuario;
-    let password = params.password;
-    query = 'SELECT * from ?? WHERE nombreUsuario = ? AND estado=1';
-    query = mysql.format(query, [table, usuario]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            return res.status(500).send({ error: er });
+    let auth = req.body;
+    if (auth.captcha === undefined || auth.captcha === null || auth.captcha === '') {
+        return res.status(404).send('Seleccione Captcha');
+    }
+    const verifyCaptcha = `${server}?secret=${secret}&response=${req.body.captcha}&remoteip=${req.connection.remoteAddress}`;
+    request(verifyCaptcha, (err, response, body) => {
+        body = JSON.parse(body);
+        if (body.success != undefined && !body.success) {
+            return res.status(500).send(err);
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ message: 'Error al recuperar los datos' });
+        query = 'SELECT * from ?? WHERE nombreUsuario = ? AND estado=1';
+        query = mysql.format(query, [table, auth.nombreUsuario]);
+        db.getConnectionDb((er, con) => {
+            if (er) {
+                con.release();
+                return res.status(500).send({ error: er });
             }
-            if (result.length > 0) {
-                bcrypt.compare(password, result[0].password, (check) => {
-                    if (!check) {
-                        if (params.gettoken) {
+            con.query(query, (error, result) => {
+                con.release();
+                if (error) {
+                    return res.status(404).send('Error al recuperar los datos');
+                }
+                if (result.length > 0) {
+                    let check = bcrypt.compareSync(auth.password.trim(), result[0].password.trim());
+                    if (check) {
+                        if (auth.gettoken) {
                             result[0].password = undefined;
                             return res.status(200).send({
                                 usuario: result[0],
@@ -46,12 +57,12 @@ login = (req, res) => {
                             });
                         }
                     } else {
-                        return res.status(404).send({ message: 'El usuario no se ha podido identificar' });
+                        return res.status(404).send('Contraseña Incorrecta');
                     }
-                });
-            } else {
-                return res.status(404).send({ message: 'El usuario no se ha podido identificar' });
-            }
+                } else {
+                    return res.status(404).send('Usuario Incorrecto');
+                }
+            });
         });
     });
 }

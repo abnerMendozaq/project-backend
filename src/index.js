@@ -11,6 +11,7 @@ const lvcRoutes = require('./routes/lvcRoutes');
 const empresaRoutes = require('./routes/empresaRoutes');
 const interesRoutes = require('./routes/interesRoutes');
 const personaRouter = require('./routes/personaRoutes');
+const captchaRouter = require('./routes/captcha');
 
 const app = express();
 /**Settings */
@@ -31,6 +32,7 @@ app.use('/api', lvcRoutes);
 app.use('/api', empresaRoutes);
 app.use('/api', interesRoutes);
 app.use('/api', personaRouter);
+app.use('/api', captchaRouter);
 /**Iniciar Servidor */
 const server = require('http').Server(app);
 server.listen(app.get('port'), () => {

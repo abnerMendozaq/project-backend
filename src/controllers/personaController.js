@@ -13,12 +13,12 @@ getPersonCi = (req, res) => {
     query = mysql.format(query, [table, persona]);
     db.getConnectionDb((er, con) => {
         if (er) {
-            res.status(500).send({ error: er });
+            res.status(500).send('Internal Server');
         }
         con.query(query, (error, result) => {
             con.release();
             if (error) {
-                return res.status(404).send({ error: error });
+                return res.status(404).send('Error al recuperar datos');
             }
             return res.status(200).send(result[0]);
         });
