@@ -1,17 +1,12 @@
-const mysql = require('mysql');
-function ConnectionDb() {
-    let pool = mysql.createPool({
-        connectionLimit: 100,
-        host: 'localhost',
-        port: '3306',
-        user: 'root',
-        password: '',
-        database: 'bddaddjj'
-    });
-    this.getConnectionDb = function (callback) {
-        pool.getConnection((error, connection) => {
-            callback(error, connection);
-        });
+const Sequelize = require('sequelize');
+const config = require('./utils/configDatabase');
+const sequelize = new Sequelize(
+    config.database,
+    config.user,
+    config.password,
+    {
+        host: config.host,
+        dialect: config.dialect
     }
-}
-module.exports = new ConnectionDb();
+);
+module.exports = sequelize;

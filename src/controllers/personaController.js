@@ -1,50 +1,74 @@
-const db = require('../database');
-const mysql = require('mysql');
-const table = ["persona"];
-let query = '';
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const personModel = require('../models/persona');
+const util = require('../utils/constants');
+const Controller = {};
 
-personList = (req, res) => {
-    // db.query();
-    return res.status(200).send('Usuario');
-}
-getPersonCi = (req, res) => {
-    let persona = req.body;
-    query = 'SELECT idPersona FROM ?? WHERE ?';
-    query = mysql.format(query, [table, persona]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send('Internal Server');
+Controller.personList = async (req, res) => {
+    try {
+        const result = await personModel.findAll({ where: { estado: 1 } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(400), json({ message: util.ERROR_400 })
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send('Error al recuperar datos');
-            }
-            return res.status(200).send(result[0]);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-getOne = (req, res) => {
-    // db.query();
-    return res.status(200).send('obtener un usuario');
+Controller.getPerson = async (req, res) => {
+    let person = req.body;
+    try {
+        const result = await personModel.findOne({ where: { [Op.and]: person, estado: 1 } });
+        if (result) {
+            return res.json(result);
+        } else {
+            return res.status(404).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-createPerson = (req, res) => {
-    // db.query();
-    return res.status(200).send('crear un usuario');
+Controller.createPerson = async (req, res) => {
+    let person = req.body;
+    try {
+        const result = await personModel.create(person);
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-modifyPerson = (req, res) => {
-    // db.query();
-    return res.status(200).send('modificar un usuario');
+Controller.modifyPerson = async (req, res) => {
+    let person = req.body;
+    try {
+        const result = await personModel.update(person,
+            { where: { idPersona: person.idPersona } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-deletePerson = (req, res) => {
-    // db.query();
-    return res.status(200).send('eliminar un usuario');
+Controller.deletePerson = async (req, res) => {
+    let person = req.body;
+    try {
+        const result = await personModel.update({ estado: 0 },
+            { where: person });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-module.exports = {
-    personList,
-    getOne,
-    modifyPerson,
-    createPerson,
-    deletePerson,
-    getPersonCi
-};
+
+module.exports = Controller;

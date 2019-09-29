@@ -1,11 +1,14 @@
 const express = require('express');
 const ufvController = require('../controllers/ufvController');
 const md_auth = require('../services/jwt-service');
-const router = express.Router();
+const url = require('../utils/urlRoutes');
 
-router.get('/ufvs', md_auth.decodeToken, ufvController.ufvList);
-router.post('/ufv', md_auth.decodeToken, ufvController.createUfv);
-router.post('/oneufv', md_auth.decodeToken, ufvController.getOne);
-router.put('/ufv', md_auth.decodeToken, ufvController.modifyUfv);
-router.delete('/ufv', md_auth.decodeToken, ufvController.deleteUfv);
+const router = express.Router();
+router.get(url.listarUfvs, md_auth.decodeToken, ufvController.ufvList);
+router.post(url.obtenerUfv, md_auth.decodeToken, ufvController.getUfv);
+router.post(url.crearUfv, md_auth.decodeToken, ufvController.createUfv);
+router.post(url.crearUfvs, md_auth.decodeToken, ufvController.createUfvs);
+router.post(url.actualizarUfv, md_auth.decodeToken, ufvController.modifyUfv);
+router.post(url.eliminarUfv, md_auth.decodeToken, ufvController.deleteUfv);
+
 module.exports = router;

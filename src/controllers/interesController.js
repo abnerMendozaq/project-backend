@@ -1,84 +1,74 @@
-const db = require('../database');
-const mysql = require('mysql');
-const table = ["interes"];
-let query = '';
-interesList = (req, res) => {
-    query = 'SELECT * FROM ??'
-    query = mysql.format(query, table);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const interestModel = require('../models/interes');
+const util = require('../utils/constants');
+const Controller = {};
+
+Controller.interestList = async (req, res) => {
+    try {
+        const result = await interestModel.findAll({ where: { estado: 1 } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(400), json({ message: util.ERROR_400 })
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ error: error });
-            }
-            return res.status(200).send(result);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-getOne = (req, res) => {
-    let interes = req.body;
-    query = 'SELECT * FROM ?? WHERE ?';
-    query = mysql.format(query, [table, interes]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+Controller.getInterest = async (req, res) => {
+    let interest = req.body;
+    try {
+        const result = await interestModel.findOne({ where: { [Op.and]: interest, estado: 1 } });
+        if (result) {
+            return res.json(result);
+        } else {
+            return res.status(404).json(util.ERROR_400);
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ error: error });
-            }
-            return res.status(200).send(result[0]);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-createInteres = (req, res) => {
-    let interes = req.body;
-    query = 'INSERT INTO ?? SET ?';
-    query = mysql.format(query, [table, interes]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+Controller.createInterest = async (req, res) => {
+    let interest = req.body;
+    try {
+        const result = await interestModel.create(interest);
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ error: error });
-            }
-            result.message = 'Registrado Correctamente';
-            return res.status(200).send(result);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-modifyInteres = (req, res) => {
-    let interes = req.body;
-    query = 'UPDATE ?? SET ? WHERE idInteres=?';
-    query = mysql.format(query, [table, interes,interes.idInteres]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+Controller.modifyInterest = async (req, res) => {
+    let interest = req.body;
+    try {
+        const result = await interestModel.update(interest,
+            { where: { idInteres: interest.idInteres } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ error: error });
-            }
-            result.message = 'Modificado Correctamente';
-            return res.status(200).send(result);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-deleteInteres = (req, res) => {
-    // db.query();
-    return res.status(200).send('eliminar un usuario');
+Controller.deleteInterest = async (req, res) => {
+    let interest = req.body;
+    try {
+        const result = await interestModel.update({ estado: 0 },
+            { where: interest });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-module.exports = {
-    interesList,
-    getOne,
-    modifyInteres,
-    createInteres,
-    deleteInteres
-};
+
+module.exports = Controller;

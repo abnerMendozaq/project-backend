@@ -1,7 +1,8 @@
 const jwt = require('jwt-simple');
 const moment = require('moment');
-const secret = 'miproyecto';
-function encodeToken(usuario) {
+const util = require('../utils/constants');
+const Controller = {};
+Controller.encodeToken = (usuario) => {
     let payload = {
         idUsuario: usuario.idUsuario,
         nombreUsuario: usuario.nombreUsuario,
@@ -11,25 +12,22 @@ function encodeToken(usuario) {
         iat: moment().unix(),
         exp: moment().add(24, 'hours').unix()
     };
-    return jwt.encode(payload, secret, 'HS256');
+    return jwt.encode(payload, util.SECRET_KEY, 'HS256');
 }
-function decodeToken(req, res, next) {
+Controller.decodeToken = (req, res, next) => {
     if (!req.headers.authorization) {
-        return res.status(403).send({ message: 'La peticion no tiene autorizacion' });
+        return res.status(403).send({ message: util.UNAUTHORIZED });
     }
     let token = req.headers.authorization.replace(/['"]+/g, '');
     try {
-        var payload = jwt.decode(token, secret);
+        var payload = jwt.decode(token, util.SECRET_KEY);
         if (payload.exp <= moment().unix()) {
-            return res.status(401).send({ message: 'El token ha expirado' });
+            return res.status(401).send({ message: util.TOKEN_EXPIRED });
         }
     } catch (error) {
-        return res.status(404).send({ message: 'El token no es valido' });
+        return res.status(404).send({ message: util.INVALID_TOKEN });
     }
     req.usuario = payload;
     next();
 }
-module.exports = {
-    encodeToken,
-    decodeToken
-}
+module.exports = Controller;

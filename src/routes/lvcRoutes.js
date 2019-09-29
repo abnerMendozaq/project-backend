@@ -1,10 +1,13 @@
 const express = require('express');
+const md_auth = require('../services/jwt-service');
 const lvcController = require('../controllers/lvcController');
+const url = require('../utils/urlRoutes');
 
 const router = express.Router()
-router.get('/lvclist', lvcController.lvcList);
-router.post('/lvc', lvcController.createLvc);
-router.get('/lvc/:id', lvcController.getOne);
-router.put('/lvc/:id', lvcController.modifyLvc);
-router.delete('/lvc/:id', lvcController.deleteLvc);
+router.post(url.listarLvcs, md_auth.decodeToken, lvcController.lvcList);
+router.post(url.obtenerLvc, md_auth.decodeToken, lvcController.getlvc);
+// router.get('/lvc/:id',md_auth.decodeToken, lvcController.getOne);
+// router.put('/lvc/:id',md_auth.decodeToken, lvcController.modifyLvc);
+// router.delete('/lvc/:id',md_auth.decodeToken, lvcController.deleteLvc);
+
 module.exports = router;

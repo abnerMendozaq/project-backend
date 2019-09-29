@@ -1,70 +1,75 @@
-const db = require('../database');
-const mysql = require('mysql');
-const table = ["empresa"];
-let query = '';
-companyList = (req, res) => {
-    let persona = req.body;
-    query = 'SELECT * FROM ?? WHERE ?';
-    query = mysql.format(query, [table, persona]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
-        }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ message: 'Error al recuperar los datos' });
-            }
-            return res.status(200).send(result);
-        });
-    });
-}
-getOne = (req, res) => {
+const companyModel = require('../models/empresa');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const util = require('../utils/constants');
+const Controller = {};
+
+Controller.companyList = async (req, res) => {
     let company = req.body;
-    query = 'SELECT * FROM ?? WHERE ?';
-    query = mysql.format(query, [table, company]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+    try {
+        const result = await companyModel.findAll({ where: { [Op.and]: company, estado: 1 } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(400), json({ message: util.ERROR_400 })
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ message: 'Error al obtener Empresa' });
-            }
-            return res.status(200).send(result[0]);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-createCompany = (req, res) => {
+Controller.getCompany = async (req, res) => {
     let company = req.body;
-    query = 'INSERT INTO ?? SET ?';
-    query = mysql.format(query, [table, company]);
-    db.getConnectionDb((er, con) => {
-        if (er) {
-            res.status(500).send({ error: er });
+    try {
+        const result = await companyModel.findOne({ where: { [Op.and]: company, estado: 1 } });
+        if (result) {
+            return res.json(result);
+        } else {
+            return res.status(404).json(util.ERROR_400);
         }
-        con.query(query, (error, result) => {
-            con.release();
-            if (error) {
-                return res.status(404).send({ message: 'Error al registrar empresa' });
-            }
-            return res.status(200).send(result);
-        });
-    });
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-modifyUser = (req, res) => {
-    // db.query();
-    return res.status(200).send('modificar un usuario');
+Controller.createCompany = async (req, res) => {
+    let company = req.body;
+    try {
+        const result = await companyModel.create(company);
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-deleteUser = (req, res) => {
-    // db.query();
-    return res.status(200).send('eliminar un usuario');
+Controller.modifyCompany = async (req, res) => {
+    let company = req.body;
+    try {
+        const result = await companyModel.update(company,
+            { where: { idEmpresa: company.idEmpresa } });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
 }
-module.exports = {
-    companyList,
-    getOne,
-    modifyUser,
-    createCompany,
-    deleteUser
-};
+Controller.deleteCompany = async (req, res) => {
+    let company = req.body;
+    try {
+        const result = await companyModel.update({ estado: 0 },
+            { where: company });
+        if (result) {
+            return res.status(200).json(result);
+        } else {
+            return res.status(500).json(util.ERROR_400);
+        }
+    } catch (error) {
+        return res.status(500).json(util.SERVER_500 + error);
+    }
+}
+
+module.exports = Controller;
