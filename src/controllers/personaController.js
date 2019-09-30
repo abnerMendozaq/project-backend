@@ -23,7 +23,7 @@ Controller.getPerson = async (req, res) => {
         if (result) {
             return res.json(result);
         } else {
-            return res.status(404).json(util.ERROR_400);
+            return res.status(200).json(null);
         }
     } catch (error) {
         return res.status(500).json(util.SERVER_500 + error);

@@ -31,7 +31,7 @@ module.exports = {
     eliminarInteres: '/interest/delete',
     /**calendario */
     listarFeriados: '/calendar/list',
-    agregarFeriados: 'calendar/create',
+    agregarFeriados: '/calendar/create-array',
     /**consultora */
     listarConsultoras: '/consultant/list',
     obtenerConsultora: '/consultant/one',

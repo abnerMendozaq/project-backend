@@ -21,13 +21,13 @@ Controller.login = async (req, res) => {
         try {
             const user = await userModel.findOne({ where: { nombreUsuario: auth.nombreUsuario, estado: 1 } });
             if (user) {
-                let check = bcrypt.compareSync(auth.password.trim(), usuario.password.trim());
+                let check = bcrypt.compareSync(auth.password.trim(), user.password.trim());
                 if (check) {
                     if (auth.gettoken) {
-                        usuario.password = undefined;
+                        user.password = undefined;
                         return res.json({
-                            usuario: usuario,
-                            token: jwt.encodeToken(usuario)
+                            usuario: user,
+                            token: jwt.encodeToken(user)
                         });
                     }
                 } else {
