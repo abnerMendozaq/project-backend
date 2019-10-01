@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database');
-const consultora = require('./consultora');
-const empresa = require('./empresa');
+const persona = require('./persona');
 
 const Usuario = sequelize.define('usuario', {
     idUsuario: {
@@ -47,23 +46,14 @@ const Usuario = sequelize.define('usuario', {
         defaultValue: Sequelize.NOW,
         allowNull: true
     },
-    idConsultora: {
+    idPersona: {
         type: Sequelize.INTEGER(11),
-        field: 'idConsultora',
+        field: 'idPersona',
         refences: {
-            model: consultora,
-            id: 'idConsultora'
+            model: persona,
+            id: 'idPersona'
         },
-        allowNull: true
-    },
-    idEmpresa: {
-        type: Sequelize.INTEGER(11),
-        field: 'idEmpresa',
-        refences: {
-            model: empresa,
-            id: 'idEmpresa'
-        },
-        allowNull: true
+        allowNull: false
     }
 }, {
     freezeTableName: true,

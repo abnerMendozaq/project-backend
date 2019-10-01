@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const md_auth = require('./services/jwt-service');
+
 const indexRoutes = require('./routes/index');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
@@ -14,6 +16,12 @@ const authRouter = require('./routes/authRoutes');
 const calendarioRouter = require('./routes/calendarioRouter');
 
 const app = express();
+const server = require('http').Server(app);
+/**websocket server */
+const io = require('socket.io')(server, {
+    pingInterval: 10000,
+    pingTimeout: 5000
+});
 /**Settings */
 app.set('port', process.env.PORT || 3000);
 /**Middleware */
@@ -35,9 +43,9 @@ app.use('/api', personaRouter);
 app.use('/api', authRouter);
 app.use('/api', calendarioRouter);
 /**Iniciar Servidor */
-const server = require('http').Server(app);
 server.listen(app.get('port'), () => {
     console.log(`http://localhost:${app.get('port')}`);
 });
-/**WebSocket */
-// const ws = require('express-ws')(server);
+io.use(md_auth.decodeTokenWs);
+/**WebSockets Routes*/
+require('./routes/wsUfvRoutes')(io);

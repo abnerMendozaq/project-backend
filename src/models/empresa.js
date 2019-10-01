@@ -71,31 +71,6 @@ const Empresa = sequelize.define('empresa', {
         field: 'longitud',
         allowNull: true
     },
-    saldoIva: {
-        type: Sequelize.DECIMAL(18.2),
-        field: 'saldoIva',
-        allowNull: false
-    },
-    fechaSaldoIva: {
-        type: Sequelize.DATE,
-        field: 'fechaSaldoIva',
-        allowNull: false
-    },
-    saldoIue: {
-        type: Sequelize.DECIMAL(18, 2),
-        field: 'saldoIue',
-        allowNull: false
-    },
-    fechaSaldoIue: {
-        type: Sequelize.DATE,
-        field: 'fechaSaldoIue',
-        allowNull: false
-    },
-    saldoPagoCuenta: {
-        type: Sequelize.DECIMAL(18.2),
-        field: 'saldoPagoCuenta',
-        allowNull: false
-    },
     estado: {
         type: Sequelize.TINYINT(1),
         field: 'estado',

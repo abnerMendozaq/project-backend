@@ -30,4 +30,24 @@ Controller.decodeToken = (req, res, next) => {
     req.usuario = payload;
     next();
 }
+Controller.decodeTokenWs = (socket, next) => {
+    if (socket.handshake.query && socket.handshake.query.token) {
+        let token = socket.handshake.query.token.replace(/['"]+/g, '');
+        try {
+            var payload = jwt.decode(token, util.SECRET_KEY);
+            if (payload.exp <= moment().unix()) {
+                console.log({ message: util.TOKEN_EXPIRED });
+                return next({ message: util.TOKEN_EXPIRED });
+            }
+        } catch (error) {
+            console.log({ message: util.INVALID_TOKEN });
+            return next({ message: util.INVALID_TOKEN });
+        }
+        socket.usuario = payload;
+        next();
+    } else {
+        console.log({ message: util.UNAUTHORIZED });
+        next({ message: util.UNAUTHORIZED });
+    }
+}
 module.exports = Controller;
