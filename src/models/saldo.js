@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database');
-const empresa = require('./empresa');
 const usuario = require('./usuario');
 
 const Saldo = sequelize.define('saldo', {

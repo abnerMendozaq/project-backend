@@ -8,9 +8,7 @@ const empresaModel = require('../models/empresa');
 const lvcModel = require('../models/lvc');
 const formulario200Model = require('../models/formulario200');
 const formulario400Model = require('../models/formulario400');
-const saldoIVAModel = require('../models/saldoIVA');
-const saldoIUEModel = require('../models/saldoIUE');
-const saldoPagoCuentaModel = require('../models/saldoPagoCuenta');
+const saldoModel = require('../models/saldo');
 const constants = require('../utils/constants')
 const Controller = {};
 
@@ -19,117 +17,75 @@ Controller.createUserCompany = async (req, res) => {
     let usuario = req.body[1];
     let empresa = req.body[2];
     let saldos = req.body[3];
-    await db.transaction()
-        .then((t) => {
-            return personaModel.create(persona, { transaction: t })
-                .then((person) => {
-                    empresa.idPersona = person.idPersona;
-                    usuario.idPersona = person.idPersona;
-                    return empresaModel.create(empresa, { transaction: t })
-                        .then((company) => {
-                            _.each(saldos, s => {
-                                s.idEmpresa = company.idEmpresa;
-                            });
-                            usuario.password = bcrypt.hashSync(usuario.password, 10);
-                            return saldoIVAModel.create(saldos[0], { transaction: t })
-                                .then(() => {
-                                    return saldoIUEModel.create(saldos[1], { transaction: t })
-                                        .then(() => {
-                                            return saldoPagoCuentaModel.create(saldos[2], { transaction: t })
-                                                .then(() => {
-                                                    return usuarioModel.create(usuario, { transaction: t }
-                                                    ).then(() => {
-                                                        t.commit();
-                                                        return res.status(200).json(constants.SUCCESS);
-                                                    }).catch((err) => {
-                                                        t.rollback();
-                                                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                                                    });
-                                                }).catch((err) => {
-                                                    t.rollback();
-                                                    return res.status(400).json(`${constants.ERROR_400} ${err.message}fff`);
-                                                });
-                                        }).catch((err) => {
-                                            t.rollback();
-                                            return res.status(400).json(`${constants.ERROR_400} ${err.message}mmm`);
-                                        });
-                                }).catch((err) => {
-                                    t.rollback();
-                                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                                });
-                        }).catch((err) => {
-                            return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                        });
-                }).catch((err) => {
-                    t.rollback();
-                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                });
-        }).catch(err => {
-            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
-        });
+    const transaction = await db.transaction();
+    try {
+        // step 1
+        let person = await personaModel.create(persona, { transaction });
+        // step 2
+        empresa.idPersona = person.idPersona;
+        let company = await empresaModel.create(empresa, { transaction });
+        // step 3
+        _.each(saldos, s => { s.idEmpresa = company.idEmpresa });
+        await saldoModel.bulkCreate(saldos, { transaction });
+        // step 4
+        usuario.idPersona = person.idPersona;
+        usuario.password = bcrypt.hashSync(usuario.password, 10);
+        await usuarioModel.create(usuario, { transaction });
+        // commit
+        await transaction.commit();
+        return res.status(200).json(`success`);
+    } catch (err) {
+        // Rollback transaction if any errors were encountered
+        await transaction.rollback();
+        return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
+    }
 }
 Controller.createUserConsultant = async (req, res) => {
     let persona = req.body[0];
     let usuario = req.body[1];
     let consultora = req.body[2];
-    await db.transaction()
-        .then((t) => {
-            return personaModel.create(persona, { transaction: t }
-            ).then((person) => {
-                consultora.idPersona = person.idPersona;
-                usuario.idPersona = person.idPersona;
-                return consultoraModel.create(consultora, { transaction: t }
-                ).then((consultant) => {
-                    usuario.password = bcrypt.hashSync(usuario.password, 10);
-                    return usuarioModel.create(usuario, { transaction: t }
-                    ).then(() => {
-                        t.commit();
-                        return res.status(200).json(constants.SUCCESS);
-                    }).catch((err) => {
-                        t.rollback();
-                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                    });
-                }).catch((err) => {
-                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                });
-            }).catch((err) => {
-                t.rollback();
-                return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-            });
-        }).catch(err => {
-            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
-        });
+    const transaction = await db.transaction();
+    try {
+        // step 1
+        let person = await personaModel.create(persona, { transaction });
+        // step 2
+        usuario.idPersona = person.idPersona;
+        usuario.password = bcrypt.hashSync(usuario.password, 10);
+        await usuarioModel.create(usuario, { transaction });
+        //step 3
+        consultora.idPersona = person.idPersona;
+        await consultoraModel.create(consultora, { transaction });
+        // commit
+        await transaction.commit();
+        return res.status(200).json(`success`);
+    } catch (err) {
+        // Rollback transaction if any errors were encountered
+        await transaction.rollback();
+        return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
+    }
 }
 Controller.createLvcForm200Form400 = async (req, res) => {
     let lvc = req.body[0];
     let form200 = req.body[1];
     let form400 = req.body[2];
-    await db.transaction()
-        .then((t) => {
-            lvcModel.create(lvc, { transaction: t }
-            ).then((lvcData) => {
-                form200.idFormulario200 = lvcData.idLvc;
-                form400.idFormulario400 = lvcData.idLvc;
-                return formulario200Model.create(form200, { transaction: t }
-                ).then(() => {
-                    return formulario400Model.create(form400, { transaction: t }
-                    ).then(() => {
-                        t.commit();
-                        return res.status(200).json(constants.SUCCESS);
-                    }).catch((err) => {
-                        t.rollback();
-                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                    });
-                }).catch((err) => {
-                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-                });
-            }).catch((err) => {
-                t.rollback();
-                return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
-            });
-        }).catch(err => {
-            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
-        });
+    const transaction = await db.transaction();
+    try {
+        // step 1
+        let lvcData = await lvcModel.create(lvc, { transaction });
+        // step 2
+        form200.idFormulario200 = lvcData.idLvc;
+        await formulario200Model.create(form200, { transaction });
+        //step 3
+        form400.idFormulario400 = lvcData.idLvc;
+        await formulario400Model.create(form400, { transaction });
+        // commit
+        await transaction.commit();
+        return res.status(200).json(`success`);
+    } catch (err) {
+        // Rollback transaction if any errors were encountered
+        await transaction.rollback();
+        return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
+    }
 }
 
 module.exports = Controller;

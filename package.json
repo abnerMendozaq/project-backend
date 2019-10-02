@@ -22,6 +22,7 @@
     "mysql2": "^1.7.0",
     "request": "^2.88.0",
     "sequelize": "^5.18.4",
+    "sequelize-transactions": "^1.0.1",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

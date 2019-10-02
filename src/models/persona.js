@@ -58,7 +58,7 @@ const Persona = sequelize.define('persona', {
     celular: {
         type: Sequelize.INTEGER(11),
         field: 'celular',
-        allowNull: false
+        allowNull: true
     },
     estado: {
         type: Sequelize.TINYINT(1),

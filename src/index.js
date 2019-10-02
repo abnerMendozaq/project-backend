@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const md_auth = require('./services/jwt-service');
 const webSocket = require('./services/socketService');
 
 const indexRoutes = require('./routes/index');
@@ -19,10 +18,6 @@ const calendarioRouter = require('./routes/calendarioRouter');
 const app = express();
 const server = require('http').Server(app);
 /**websocket server */
-// const io = require('socket.io')(server, {
-//     pingInterval: 10000,
-//     pingTimeout: 5000
-// });
 webSocket.configure(server);
 /**Settings */
 app.set('port', process.env.PORT || 3000);
@@ -32,9 +27,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 /**Cors */
 app.use(cors());
-// io.use(md_auth.decodeTokenWs);
-/**WebSockets Routes*/
-// require('./routes/wsUfvRoutes')(io);
 /**Routes */
 app.use('/', indexRoutes);
 app.use('/api', usuarioRoutes);
