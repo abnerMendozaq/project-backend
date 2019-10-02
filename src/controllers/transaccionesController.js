@@ -1,5 +1,6 @@
-const db = require('../database');
+const _ = require('lodash');
 const bcrypt = require('bcryptjs');
+const db = require('../database');
 const usuarioModel = require('../models/usuario');
 const personaModel = require('../models/persona');
 const consultoraModel = require('../models/consultora');
@@ -7,7 +8,9 @@ const empresaModel = require('../models/empresa');
 const lvcModel = require('../models/lvc');
 const formulario200Model = require('../models/formulario200');
 const formulario400Model = require('../models/formulario400');
-const saldoModel = require('../models/saldo');
+const saldoIVAModel = require('../models/saldoIVA');
+const saldoIUEModel = require('../models/saldoIUE');
+const saldoPagoCuentaModel = require('../models/saldoPagoCuenta');
 const constants = require('../utils/constants')
 const Controller = {};
 
@@ -15,40 +18,54 @@ Controller.createUserCompany = async (req, res) => {
     let persona = req.body[0];
     let usuario = req.body[1];
     let empresa = req.body[2];
-    let saldo = req.body[3];
+    let saldos = req.body[3];
     await db.transaction()
         .then((t) => {
-            personaModel.create(persona, { transaction: t }
-            ).then((person) => {
-                empresa.idPersona = person.idPersona;
-                usuario.idPersona = person.idPersona;
-                return empresaModel.create(empresa, { transaction: t }
-                ).then((company) => {
-                    saldo.idEmpresa = company.idEmpresa;
-                    return saldoModel.create(saldoModel, { transaction: t })
-                        .then((balance) => {
-                            usuario.password = bcrypt.hashSync(usuario.password, 10);
-                            return usuarioModel.create(usuario, { transaction: t }
-                            ).then(() => {
-                                t.commit();
-                                return res.status(200).json(constants.SUCCESS);
-                            }).catch((err) => {
-                                t.rollback();
-                                return res.status(400).json(`${constants.ERROR} ${err.message}`);
+            return personaModel.create(persona, { transaction: t })
+                .then((person) => {
+                    empresa.idPersona = person.idPersona;
+                    usuario.idPersona = person.idPersona;
+                    return empresaModel.create(empresa, { transaction: t })
+                        .then((company) => {
+                            _.each(saldos, s => {
+                                s.idEmpresa = company.idEmpresa;
                             });
+                            usuario.password = bcrypt.hashSync(usuario.password, 10);
+                            return saldoIVAModel.create(saldos[0], { transaction: t })
+                                .then(() => {
+                                    return saldoIUEModel.create(saldos[1], { transaction: t })
+                                        .then(() => {
+                                            return saldoPagoCuentaModel.create(saldos[2], { transaction: t })
+                                                .then(() => {
+                                                    return usuarioModel.create(usuario, { transaction: t }
+                                                    ).then(() => {
+                                                        t.commit();
+                                                        return res.status(200).json(constants.SUCCESS);
+                                                    }).catch((err) => {
+                                                        t.rollback();
+                                                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
+                                                    });
+                                                }).catch((err) => {
+                                                    t.rollback();
+                                                    return res.status(400).json(`${constants.ERROR_400} ${err.message}fff`);
+                                                });
+                                        }).catch((err) => {
+                                            t.rollback();
+                                            return res.status(400).json(`${constants.ERROR_400} ${err.message}mmm`);
+                                        });
+                                }).catch((err) => {
+                                    t.rollback();
+                                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
+                                });
                         }).catch((err) => {
-                            t.rollback();
-                            return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                            return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                         });
                 }).catch((err) => {
-                    return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                    t.rollback();
+                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                 });
-            }).catch((err) => {
-                t.rollback();
-                return res.status(400).json(`${constants.ERROR} ${err.message}`);
-            });
         }).catch(err => {
-            return res.status(500).json(`${constants.SERVER} ${err.message}`);
+            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
         });
 }
 Controller.createUserConsultant = async (req, res) => {
@@ -70,17 +87,17 @@ Controller.createUserConsultant = async (req, res) => {
                         return res.status(200).json(constants.SUCCESS);
                     }).catch((err) => {
                         t.rollback();
-                        return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                     });
                 }).catch((err) => {
-                    return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                 });
             }).catch((err) => {
                 t.rollback();
-                return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
             });
         }).catch(err => {
-            return res.status(500).json(`${constants.SERVER} ${err.message}`);
+            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
         });
 }
 Controller.createLvcForm200Form400 = async (req, res) => {
@@ -101,17 +118,17 @@ Controller.createLvcForm200Form400 = async (req, res) => {
                         return res.status(200).json(constants.SUCCESS);
                     }).catch((err) => {
                         t.rollback();
-                        return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                        return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                     });
                 }).catch((err) => {
-                    return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                    return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
                 });
             }).catch((err) => {
                 t.rollback();
-                return res.status(400).json(`${constants.ERROR} ${err.message}`);
+                return res.status(400).json(`${constants.ERROR_400} ${err.message}`);
             });
         }).catch(err => {
-            return res.status(500).json(`${constants.SERVER} ${err.message}`);
+            return res.status(500).json(`${constants.SERVER_500} ${err.message}`);
         });
 }
 

@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database');
 const empresa = require('./empresa');
+const usuario = require('./usuario');
 
 const Saldo = sequelize.define('saldo', {
     idSaldo: {
@@ -8,6 +9,11 @@ const Saldo = sequelize.define('saldo', {
         field: 'idSaldo',
         autoIncrement: true,
         primaryKey: true
+    },
+    saldo:{
+        type: Sequelize.TINYINT(4),
+        field: 'saldo',
+        allowNull: false
     },
     importe: {
         type: Sequelize.DECIMAL(18.2),
@@ -23,20 +29,26 @@ const Saldo = sequelize.define('saldo', {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         field: 'fechaRegistro',
-        allowNull: false
+        allowNull: true
     },
     fechaActualizacion: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+        field:'fechaActualizacion',
+        allowNull: true
+    },
+    idUsuario: {
+        type: Sequelize.INTEGER(11),
+        field: 'idUsuario',
+        refences: {
+            model: usuario,
+            id: 'idUsuario'
+        },
         allowNull: true
     },
     idEmpresa: {
         type: Sequelize.INTEGER(11),
         field: 'idEmpresa',
-        refences: {
-            model: empresa,
-            id: 'idEmpresa'
-        },
         allowNull: false
     }
 }, {

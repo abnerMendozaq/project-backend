@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const ws = require('../services/socketService');
 const ufvModel = require('../models/ufv');
 const util = require('../utils/constants');
 const Controller = {};
@@ -8,6 +9,7 @@ Controller.ufvList = async (req, res) => {
     try {
         const result = await ufvModel.findAll({ where: { estado: 1 } });
         if (result) {
+            ws.io.emit('message', result);
             return res.status(200).json(result);
         } else {
             return res.status(400), json({ message: util.ERROR_400 })
@@ -36,10 +38,10 @@ Controller.createUfv = async (req, res) => {
         if (result) {
             return res.status(200).json(result);
         } else {
-            return res.status(500).json(util.ERROR_400);
+            return res.status(500).json({ message: util.ERROR_400 });
         }
     } catch (error) {
-        return res.status(500).json(util.SERVER_500 + error);
+        return res.status(500).json({ message: util.SERVER_500 + error });
     }
 }
 Controller.createUfvs = async (req, res) => {
@@ -52,7 +54,7 @@ Controller.createUfvs = async (req, res) => {
             return res.status(400).json({ message: util.ERROR_400 })
         }
     } catch (error) {
-        return res.status(500).json(util.SERVER_500);
+        return res.status(500).json({ message: util.SERVER_500 });
     }
 }
 Controller.modifyUfv = async (req, res) => {
