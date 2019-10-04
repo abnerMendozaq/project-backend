@@ -1,7 +1,9 @@
 const Sequelize = require('sequelize');
+const ws = require('../services/socketService');
 const Op = Sequelize.Op;
 const interestModel = require('../models/interes');
 const util = require('../utils/constants');
+const wsUtil = require('../utils/webSockets');
 const Controller = {};
 
 Controller.interestList = async (req, res) => {
@@ -34,6 +36,7 @@ Controller.createInterest = async (req, res) => {
     try {
         const result = await interestModel.create(interest);
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_INTEREST_CREATE, result });
             return res.status(200).json(result);
         } else {
             return res.status(500).json(util.ERROR_400);
@@ -48,6 +51,7 @@ Controller.modifyInterest = async (req, res) => {
         const result = await interestModel.update(interest,
             { where: { idInteres: interest.idInteres } });
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_INTEREST_UPDATE, interest });
             return res.status(200).json(result);
         } else {
             return res.status(500).json(util.ERROR_400);
@@ -62,6 +66,7 @@ Controller.deleteInterest = async (req, res) => {
         const result = await interestModel.update({ estado: 0 },
             { where: interest });
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_INTEREST_DELETE, interest });
             return res.status(200).json(result);
         } else {
             return res.status(500).json(util.ERROR_400);

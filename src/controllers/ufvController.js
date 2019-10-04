@@ -79,6 +79,7 @@ Controller.deleteUfv = async (req, res) => {
         const result = await ufvModel.update({ estado: 0 },
             { where: ufv });
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_UFV_DELETE, ufv });
             return res.status(200).json(result);
         } else {
             return res.status(500).json(util.ERROR_400);

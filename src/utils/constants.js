@@ -14,5 +14,10 @@ module.exports = {
     SECRET_KEY: 'miproyecto',
     /**autenticacion */
     USER_WRONG: 'USUARIO Y/O CONTRASEÑA INCORRECTOS',
-    USER_BLOQUED: 'EL USUARIO NO EXISTE O ESTA BLOQUEADO'
+    USER_BLOQUED: 'EL USUARIO NO EXISTE O ESTA BLOQUEADO',
+    CONFIG_SESSION:{
+        secret: 'secret',
+        resave: true,
+        saveUninitialized: true
+    }
 };

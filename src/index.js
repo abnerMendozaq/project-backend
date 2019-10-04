@@ -1,8 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const webSocket = require('./services/socketService');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
+const webSocket = require('./services/socketService');
+const util = require('./utils/constants');
 const indexRoutes = require('./routes/index');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
@@ -14,7 +17,7 @@ const interesRoutes = require('./routes/interesRoutes');
 const personaRouter = require('./routes/personaRoutes');
 const authRouter = require('./routes/authRoutes');
 const calendarioRouter = require('./routes/calendarioRouter');
-const crypto = require('./services/crypto-service');
+
 
 const app = express();
 const server = require('http').Server(app);
@@ -26,6 +29,8 @@ app.set('port', process.env.PORT || 3000);
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(session(util.CONFIG_SESSION));
 /**Cors */
 app.use(cors());
 /**Routes */
