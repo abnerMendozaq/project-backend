@@ -1,7 +1,7 @@
 const express = require('express');
 const transaccionesController = require('../controllers/transaccionesController');
 const md_auth = require('../services/jwt-service');
-const url=require('../utils/urlRoutes');
+const url = require('../utils/urlRoutes');
 
 const router = express.Router()
 router.post(url.crearUsuarioEmpresa, transaccionesController.createUserCompany);

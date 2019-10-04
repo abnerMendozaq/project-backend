@@ -8,7 +8,7 @@ router.get(url.listarUfvs, md_auth.decodeToken, ufvController.ufvList);
 router.post(url.obtenerUfv, md_auth.decodeToken, ufvController.getUfv);
 router.post(url.crearUfv, md_auth.decodeToken, ufvController.createUfv);
 router.post(url.crearUfvs, md_auth.decodeToken, ufvController.createUfvs);
-router.post(url.actualizarUfv, md_auth.decodeToken, ufvController.modifyUfv);
+router.put(url.actualizarUfv, md_auth.decodeToken, ufvController.modifyUfv);
 router.post(url.eliminarUfv, md_auth.decodeToken, ufvController.deleteUfv);
 
 module.exports = router;

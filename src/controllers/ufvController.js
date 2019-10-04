@@ -3,13 +3,13 @@ const Op = Sequelize.Op;
 const ws = require('../services/socketService');
 const ufvModel = require('../models/ufv');
 const util = require('../utils/constants');
+const wsUtil = require('../utils/webSockets');
 const Controller = {};
 
 Controller.ufvList = async (req, res) => {
     try {
         const result = await ufvModel.findAll({ where: { estado: 1 } });
         if (result) {
-            ws.io.emit('message', result);
             return res.status(200).json(result);
         } else {
             return res.status(400), json({ message: util.ERROR_400 })
@@ -49,6 +49,7 @@ Controller.createUfvs = async (req, res) => {
     try {
         const result = await ufvModel.bulkCreate(ufvs);
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_UFV_CREATE, result });
             return res.json(result);
         } else {
             return res.status(400).json({ message: util.ERROR_400 })
@@ -63,6 +64,7 @@ Controller.modifyUfv = async (req, res) => {
         const result = await ufvModel.update(ufv,
             { where: { idUfv: ufv.idUfv } });
         if (result) {
+            ws.io.emit('message', { code: wsUtil.CODE_UFV_UPDATE, ufv });
             return res.status(200).json(result);
         } else {
             return res.status(500).json(util.ERROR_400);

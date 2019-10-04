@@ -14,6 +14,7 @@ const interesRoutes = require('./routes/interesRoutes');
 const personaRouter = require('./routes/personaRoutes');
 const authRouter = require('./routes/authRoutes');
 const calendarioRouter = require('./routes/calendarioRouter');
+const crypto = require('./services/crypto-service');
 
 const app = express();
 const server = require('http').Server(app);

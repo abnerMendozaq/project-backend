@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const config = require('./utils/configDatabase');
-const useTransaction = require('sequelize-transactions');
+
 const sequelize = new Sequelize(
     config.database,
     config.user,
@@ -10,5 +10,5 @@ const sequelize = new Sequelize(
         dialect: config.dialect
     }
 );
-useTransaction(sequelize);
+
 module.exports = sequelize;
